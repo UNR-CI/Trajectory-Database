@@ -1,0 +1,1 @@
+helm install -n im haotest bitnami/mysql  -f values.yaml

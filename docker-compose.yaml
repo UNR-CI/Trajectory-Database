@@ -1,0 +1,32 @@
+version: '2.1'
+
+services:
+  my-mongoDB:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./db-data:/data/db
+  mysql:
+    image: docker.io/bitnami/mysql:8.0
+    user: root
+    ports:
+      - '3306:3306'
+    volumes:
+      - '/home/ccarthen/Documents/projects/improject/production/kubernetes/hao/data:/bitnami/mysql/data'
+      #- './scripts:/scripts2'
+      - './scripts/table.sql:/docker-entrypoint-initdb.d/table.sql'
+      
+    environment:
+      - MYSQL_ROOT_PASSWORD=SomePassword
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+      #- MYSQL_USER=hao
+      - BITNAMI_VOLUME_DIR=/data
+      #- BITNAMI_ROOT_DIR=/test
+    healthcheck:
+      test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
+      interval: 15s
+      timeout: 5s
+      retries: 6
+# mysql -p mysql < table.sql

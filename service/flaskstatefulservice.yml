@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: haosqlstatefulinsertion
+  namespace: im
+spec:
+  selector:
+    matchLabels:
+      app: haosqlstatefulinsertion # has to match .spec.template.metadata.labels
+  serviceName: "haosqlstatefulinsertion"
+  replicas: 1 # by default is 1
+  template:
+    metadata:
+      labels:
+        app: haosqlstatefulinsertion # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: haosqlstatefulinsertion
+        image: ncar-im-0.rc.unr.edu/csvinsertion:latest
+        ports:
+        - containerPort: 5000
+          name: web
+        volumeMounts:
+        - name:  dbsecrets
+          mountPath:  /scripts/config
+          readOnly: true
+      imagePullSecrets:
+        - name:  regcred
+
+      volumes:
+        - name: dbsecrets
+          secret:
+            secretName: dbconnectstring
+            optional: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: haoinsertionservice
+  namespace: im
+spec:
+  selector:
+    app: haosqlstatefulinsertion
+  type: NodePort
+  sessionAffinity: None
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  ports:
+  - name: haoinsertionservice
+    protocol: TCP
+    port: 5000
+    targetPort: 5000 
+    # If you set the `spec.type` field to `NodePort` and you want a specific port number,
+    # you can specify a value in the `spec.ports[*].nodePort` field.
+    #nodePort: 

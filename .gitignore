@@ -1,0 +1,7 @@
+db-data/*
+data/*
+__pycache__
+*.pyc
+regcred.yaml
+secret.yml
+out
